@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Error><Code>NoSuchBucket</Code><Message>The specified bucket does not exist</Message><BucketName>funmistores</BucketName><RequestId>DAQ7TKFP6H1JD7KM</RequestId><HostId>jXQMlcwvYnVmdqE6LMWAsFWpKlSaudfCO8qJQaeyr6vk4yOJe+/owJ0cnCmXm0tm6Dfl503GvtyDybdthtv4LQ==</HostId></Error>
