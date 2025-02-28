@@ -290,7 +290,7 @@
                 <nav>
                     <ul class="mobile-menu font-heading">
                         <li class="menu-item">
-                            <a href="../">Home</a>
+                            <a href="/">Home</a>
                         </li>
                         <li class="menu-item">
                             <a href="../about-us.php">About</a>

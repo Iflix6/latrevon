@@ -218,7 +218,7 @@
                             <ul>
                                 
                             <li>
-                                    <a class="" href="../index.php">Home </a>
+                                    <a class="" href="/">Home </a>
                                 </li>
                                 <li>
                                     <a class="" href="../about-us.php">About</a>
