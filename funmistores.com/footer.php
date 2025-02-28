@@ -372,6 +372,142 @@
     //         e.preventDefault();
     //     });
 
+
+    const totalPages = 6
+  let currentPage = 1
+
+  // Get search parameters from URL
+  const urlParams = new URLSearchParams(window.location.search)
+  const searchQuery = urlParams.get("search") || ""
+  const categoryId = urlParams.get("category_id") || "All Categories"
+
+  // Initialize search inputs
+  $("#search-input").val(searchQuery)
+  $("#category_id").val(categoryId)
+
+  // Handle search form submission
+  $("#search-form").on("submit", (e) => {
+    e.preventDefault()
+    const searchQuery = $("#search-input").val()
+    const categoryId = $("#category_id").val()
+    const currentUrl = new URL(window.location.href)
+
+    
+    // Change pathname to 'shop-search' without the '.php' extension
+    currentUrl.pathname = "latrevo/funmistores.com/shop-search.php"
+    
+    // Clear existing parameters and set new ones in the desired order
+    currentUrl.search = ""
+    currentUrl.searchParams.set("category_id", categoryId)
+    currentUrl.searchParams.set("search", searchQuery)
+    
+    // Redirect to the search page with the updated parameters
+    window.location.href = currentUrl.toString()
+  })
+
+  // Handle category selection change
+  $("#category_id").on("change", () => {
+    $("#search-form").submit()
+  })
+
+  // Handle search input change (for the onchange event in the input)
+  $("#search-input").on("change", () => {
+    $("#search-form").submit()
+  })
+
+  // If we're on the search results page, load the results
+  if (window.location.pathname.includes("shop-search")) {
+    loadSearchResults()
+  }
+
+  function loadSearchResults() {
+    $("#search-results").html(
+      '<div class="col-12 text-center"><div class="spinner-border text-primary" role="status"></div></div>',
+    )
+
+    $.get(window.location.href, (data) => {
+      const $html = $(data)
+      const $products = $html.find(".product-cart-wrap")
+
+      $("#search-results").empty()
+
+      if ($products.length > 0) {
+        $products.each(function () {
+          const $product = $(this)
+          $("#search-results").append($product)
+        })
+      } else {
+        $("#search-results").html(
+          '<div class="col-12"><div class="alert alert-info">No products found matching your search criteria.</div></div>',
+        )
+      }
+
+      $(".count-results").text($products.length)
+      updatePagination()
+
+      // Initialize product modifications
+      initializeProductModifications()
+    }).fail(() => {
+      $("#search-results").html(
+        '<div class="col-12"><div class="alert alert-danger">An error occurred while searching. Please try again.</div></div>',
+      )
+    })
+  }
+
+  function updatePagination() {
+    const pagination = $("#pagination")
+    pagination.empty()
+
+    if (currentPage > 1) {
+      pagination.append(`
+        <li class="page-item">
+          <a class="page-link" href="#" data-page="${currentPage - 1}">Previous</a>
+        </li>
+      `)
+    }
+
+    for (let i = 1; i <= totalPages; i++) {
+      pagination.append(`
+        <li class="page-item ${i === currentPage ? "active" : ""}">
+          <a class="page-link" href="#" data-page="${i}">${i}</a>
+        </li>
+      `)
+    }
+
+    if (currentPage < totalPages) {
+      pagination.append(`
+        <li class="page-item">
+          <a class="page-link" href="#" data-page="${currentPage + 1}">Next</a>
+        </li>
+      `)
+    }
+
+    $(".page-link").on("click", function (e) {
+      e.preventDefault()
+      const page = $(this).data("page")
+      if (page && page >= 1 && page <= totalPages && page !== currentPage) {
+        currentPage = page
+        loadSearchResults()
+      }
+    })
+  }
+
+  function initializeProductModifications() {
+    // Change "Add" text to "Add to Cart"
+    $(".add-cart .add").each(function () {
+      const $addButton = $(this)
+      $addButton.html('<i class="fi-rs-shopping-cart mr-5"></i>Add to Cart')
+    })
+
+    // Hide heart and eye icons and remove their functionality
+    $(".product-action-1").each(function () {
+      $(this).hide()
+    })
+
+    // Remove event listeners for quick view
+    $("[data-bs-toggle='modal']").removeAttr("data-bs-toggle data-bs-target")
+  }
+
     
         });
     </script>

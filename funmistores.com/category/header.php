@@ -82,7 +82,7 @@
                 </div>
                 <div class="header-right">
                     <div class="search-style-2">
-                        <form action="../shop-search">
+                        <form action="../shop-search.php">
                             <select class="select-active" name="category_id">
                                 <option>All Categories</option>
                                                                                                     <option value="451">MILK</option>
@@ -280,7 +280,7 @@
         </div>
         <div class="mobile-header-content-area">
             <div class="mobile-search search-style-3 mobile-header-border">
-                <form action="../shop-search">
+                <form action="../shop-search.php">
                     <input type="text" name="search" placeholder="Search for items…" />
                     <button type="submit"><i class="fi-rs-search"></i></button>
                 </form>

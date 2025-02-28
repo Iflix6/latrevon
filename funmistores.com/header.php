@@ -283,7 +283,7 @@
         </div>
         <div class="mobile-header-content-area">
             <div class="mobile-search search-style-3 mobile-header-border">
-                <form action="https://latrevo.com.ng/shop-search">
+                <form action="shop-search.php">
                     <input type="text" name="search" placeholder="Search for items…" />
                     <button type="submit"><i class="fi-rs-search"></i></button>
                 </form>
@@ -293,7 +293,7 @@
                 <nav>
                     <ul class="mobile-menu font-heading">
                         <li class="menu-item">
-                            <a href="index.php">Home</a>
+                            <a href="/">Home</a>
                         </li>
                         <li class="menu-item">
                             <a href="about-us.php">About</a>

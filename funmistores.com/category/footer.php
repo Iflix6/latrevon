@@ -240,169 +240,346 @@
         <!-- Template  JS -->
         <script src="../store/assets/js/main3661.js?v=2.0"></script>
         <script src="../store/assets/js/shop3661.js?v=2.0"></script>
-               <script>
-                $(function () {
-    let cart = JSON.parse(localStorage.getItem("quoteCart")) || [];
+        <script>
+        $(function () {
+            let cart = JSON.parse(localStorage.getItem("quoteCart")) || [];
+        
+            // Function to update cart count
+            function updateCartCount() {
+                let totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+                $(".mini-cart-icon .pro-count").text(totalItems);
+            }
+        
+            // Function to update cart dropdown content
+            function updateCartDropdown() {
+                let dropdownContent = $(".cart-dropdown-wrap");
+                
+                if (cart.length === 0) {
+                    dropdownContent.php(`
+                        <div class="shopping-cart-content">
+                            <p class="text-center">No items in quote</p>
+                            <div class="shopping-cart-footer">
+                                <div class="shopping-cart-button">
+                                    <a href="quote.php" class="btn btn-secondary">View Quote</a>
+                                    <a href="request-quote.php" class="btn btn-success">Request Quote</a>
+                                </div>
+                            </div>
+                        </div>
+                    `);
+                } else {
+                    let itemsHtml = '<div class="shopping-cart-content">';
+                    cart.forEach(item => {
+                        itemsHtml += `
+                            <div class="shopping-cart-item d-flex justify-content-between mb-3">
+                                <div class="cart-item-img">
+                                    <img src="${item.image}" alt="${item.name}" style="width: 80px; height: auto;">
+                                </div>
+                                <div class="cart-item-detail">
+                                    <h6 class="mb-0">${item.name}</h6>
+                                    <p class="mb-0">Quantity: ${item.quantity}</p>
+                                    <p class="mb-0">${item.price}</p>
+                                </div>
+                                <a href="#" class="remove-item" data-id="${item.id}">×</a>
+                            </div>
+                        `;
+                    });
+                    itemsHtml += `
+                        <div class="shopping-cart-footer">
+                            <div class="shopping-cart-button d-flex justify-content-between mt-3">
+                                <a href="quote.php" class="btn btn-secondary">View Quote</a>
+                                <a href="request-quote.php" class="btn btn-success">Request Quote</a>
+                            </div>
+                        </div>
+                    </div>`;
+                    dropdownContent.html(itemsHtml);
+                }
+            }
 
-    // Function to update cart count
-    function updateCartCount() {
-        let totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-        $(".mini-cart-icon .pro-count").text(totalItems);
+            function displayCartItems() {
+      let cartContainer = $(".table-responsive.order_table tbody");
+      
+      if (cart.length === 0) {
+        cartContainer.html("<tr><td colspan='3'>No products in quote.</td></tr>");
+      } else {
+        cartContainer.empty(); // Clear existing content
+        $.each(cart, function (index, product) {
+          let row = `
+            <tr>
+              <td class="image product-thumbnail"><img src="${product.image}" alt="${product.name}"></td>
+              <td>
+                <h6 class="w-160 mb-5"><a href="#" class="text-heading">${product.name}</a></h6>
+              </td>
+              <td>
+                <h4 class="text-brand">${product.quantity}</h4>
+              </td>
+            </tr>
+          `;
+          cartContainer.append(row);
+        });
+      }
+    }
+    
+    // Call the function to display cart items when the page loads
+    displayCartItems();
+        
+            // Show dropdown on hover
+            $(".mini-cart-icon").hover(
+                function() {
+                    updateCartDropdown();
+                    $(".cart-dropdown-wrap").show();
+                },
+                function() {
+                    setTimeout(() => {
+                        if (!$(".cart-dropdown-wrap:hover").length) {
+                            $(".cart-dropdown-wrap").hide();
+                        }
+                    }, 100);
+                }
+            );
+        
+            // Keep dropdown visible when hovering over it
+            $(".cart-dropdown-wrap").hover(
+                function() {
+                    $(this).show();
+                },
+                function() {
+                    $(this).hide();
+                }
+            );
+        
+            // Add to Quote Functionality
+            $(document).on("click", ".add", function (e) {
+                e.preventDefault();
+                let button = $(this);
+                let productCard = button.closest(".product-cart-wrap");
+                let productId = productCard.find("a").first().attr("href").split("/").pop();
+                let productName = productCard.find("h2 a").text();
+                let productPrice = productCard.find(".font-small.text-muted").text();
+                let productImage = productCard.find(".default-img").attr("src");
+        
+                // Check if product exists in cart
+                let existingProduct = cart.find(item => item.id === productId);
+                if (existingProduct) {
+                    existingProduct.quantity += 1;
+                } else {
+                    cart.push({
+                        id: productId,
+                        name: productName,
+                        price: productPrice,
+                        image: productImage,
+                        quantity: 1
+                    });
+                }
+        
+                // Save to localStorage
+                localStorage.setItem("quoteCart", JSON.stringify(cart));
+        
+                // Update Cart Count in UI
+                updateCartCount();
+                updateCartDropdown();
+        
+                alert("Product added to quote!");
+            });
+        
+            // Remove item from cart
+            $(document).on('click', '.remove-item', function(e) {
+                e.preventDefault();
+                const id = $(this).data('id');
+                cart = cart.filter(item => item.id !== id);
+                localStorage.setItem("quoteCart", JSON.stringify(cart));
+                updateCartCount();
+                updateCartDropdown();
+            });
+        
+            // Remove from Quote Functionality (for the quote page)
+            $(document).on("click", ".remove-from-quote", function (e) {
+                e.preventDefault();
+                let button = $(this);
+                let productId = button.attr("data-id");
+        
+                if (confirm("Are you sure you want to remove this item?")) {
+                    // Remove from localStorage cart
+                    cart = cart.filter(item => item.id !== productId);
+                    localStorage.setItem("quoteCart", JSON.stringify(cart));
+        
+                    // Update Cart Count in UI
+                    updateCartCount();
+                    updateCartDropdown();
+        
+                    // Remove the product from the UI
+                    button.closest("tr").remove();
+                }
+            });
+        
+            // Initialize cart count on page load
+            updateCartCount();
+
+            // Function to perform the search
+    function performSearch(query, categoryId) {
+        $.ajax({
+            url: 'shop-search.php', // Use local PHP file instead
+            method: 'GET',
+            data: {
+                search: query,
+                category_id: categoryId
+            },
+            success: function(response) {
+                // Assuming the response is HTML content
+                $('#search-results').html(response);
+            },
+            error: function() {
+                $('#search-results').html('<p>An error occurred while searching. Please try again.</p>');
+            }
+        });
     }
 
-    // Function to update cart dropdown content
-    function updateCartDropdown() {
-        let dropdownContent = $(".cart-dropdown-wrap");
-        
-        if (cart.length === 0) {
-            dropdownContent.html(`
-                <div class="shopping-cart-content">
-                    <p class="text-center">No items in quote</p>
-                    <div class="shopping-cart-footer">
-                        <div class="shopping-cart-button">
-                            <a href="quote.html" class="btn btn-secondary">View Quote</a>
-                            <a href="request-quote.html" class="btn btn-success">Request Quote</a>
-                        </div>
-                    </div>
-                </div>
-            `);
-        } else {
-            let itemsHtml = '<div class="shopping-cart-content">';
-            cart.forEach(item => {
-                itemsHtml += `
-                    <div class="shopping-cart-item d-flex justify-content-between mb-3">
-                        <div class="cart-item-img">
-                            <img src="${item.image}" alt="${item.name}" style="width: 80px; height: auto;">
-                        </div>
-                        <div class="cart-item-detail">
-                            <h6 class="mb-0">${item.name}</h6>
-                            <p class="mb-0">Quantity: ${item.quantity}</p>
-                            <p class="mb-0">${item.price}</p>
-                        </div>
-                        <a href="#" class="remove-item" data-id="${item.id}">×</a>
-                    </div>
-                `;
-            });
-            itemsHtml += `
-                <div class="shopping-cart-footer">
-                    <div class="shopping-cart-button d-flex justify-content-between mt-3">
-                        <a href="quote.html" class="btn btn-secondary">View Quote</a>
-                        <a href="request-quote.html" class="btn btn-success">Request Quote</a>
-                    </div>
-                </div>
-            </div>`;
-            dropdownContent.html(itemsHtml);
-        }
-    } 
+    // $(".product-action-1, .fi-rs-eye").parent().remove();
+    //     $(".add-cart .add").html('<i class="fi-rs-shopping-cart mr-5"></i>Add to Cart');
+    //     $(".action-btn[data-bs-toggle='modal']").remove();
+    //     $(".modal").on("show.bs.modal", function (e) {
+    //         e.preventDefault();
+    //     });
 
-    // Show dropdown on hover
-    $(".mini-cart-icon").hover(
-        function() {
-            updateCartDropdown();
-            $(".cart-dropdown-wrap").show();
-        },
-        function() {
-            setTimeout(() => {
-                if (!$(".cart-dropdown-wrap:hover").length) {
-                    $(".cart-dropdown-wrap").hide();
-                }
-            }, 100);
-        }
-    );
 
-    // Keep dropdown visible when hovering over it
-    $(".cart-dropdown-wrap").hover(
-        function() {
-            $(this).show();
-        },
-        function() {
-            $(this).hide();
-        }
-    );
+    const totalPages = 6
+  let currentPage = 1
 
-    // Add to Quote Functionality
-    $(document).on("click", ".button, .add", function (e) {
-        e.preventDefault(); // Prevent the default action (page redirection)
-        let button = $(this);
-        let productId, productName, productPrice, productImage;
+  // Get search parameters from URL
+  const urlParams = new URLSearchParams(window.location.search)
+  const searchQuery = urlParams.get("search") || ""
+  const categoryId = urlParams.get("category_id") || "All Categories"
 
-        if (button.hasClass('button')) {
-            // For product detail page
-            let productContainer = button.closest(".detail-info");
-            productId = window.location.pathname.split('/').pop();
-            productName = productContainer.find("h2.title-detail").text();
-            productPrice = productContainer.find(".product-price .current-price-new").text();
-            productImage = $(".product-image-slider img").first().attr("src");
-        } else {
-            // For product list page
-            let productCard = button.closest(".product-cart-wrap");
-            productId = productCard.find("a").first().attr("href").split("/").pop();
-            productName = productCard.find("h2 a").text();
-            productPrice = productCard.find(".font-small.text-muted").text();
-            productImage = productCard.find(".default-img").attr("src");
-        }
+  // Initialize search inputs
+  $("#search-input").val(searchQuery)
+  $("#category_id").val(categoryId)
 
-        // Check if product exists in cart
-        let existingProduct = cart.find(item => item.id === productId);
-        if (existingProduct) {
-            existingProduct.quantity += 1;
-        } else {
-            cart.push({
-                id: productId,
-                name: productName,
-                price: productPrice,
-                image: productImage,
-                quantity: 1
-            });
-        }
+  // Handle search form submission
+  $("#search-form").on("submit", (e) => {
+    e.preventDefault()
+    const searchQuery = $("#search-input").val()
+    const categoryId = $("#category_id").val()
+    const currentUrl = new URL(window.location.href)
 
-        // Save to localStorage
-        localStorage.setItem("quoteCart", JSON.stringify(cart));
+    
+    // Change pathname to 'shop-search' without the '.php' extension
+    currentUrl.pathname = "latrevo/funmistores.com/shop-search.php"
+    
+    // Clear existing parameters and set new ones in the desired order
+    currentUrl.search = ""
+    currentUrl.searchParams.set("category_id", categoryId)
+    currentUrl.searchParams.set("search", searchQuery)
+    
+    // Redirect to the search page with the updated parameters
+    window.location.href = currentUrl.toString()
+  })
 
-        // Update Cart Count in UI
-        updateCartCount();
-        updateCartDropdown();
+  // Handle category selection change
+  $("#category_id").on("change", () => {
+    $("#search-form").submit()
+  })
 
-        // Show a confirmation message without redirecting
-        alert("Product added to quote!");
-    });
+  // Handle search input change (for the onchange event in the input)
+  $("#search-input").on("change", () => {
+    $("#search-form").submit()
+  })
 
-    // Remove item from cart
-    $(document).on('click', '.remove-item', function(e) {
-        e.preventDefault();
-        const id = $(this).data('id');
-        cart = cart.filter(item => item.id !== id);
-        localStorage.setItem("quoteCart", JSON.stringify(cart));
-        updateCartCount();
-        updateCartDropdown();
-    });
+  // If we're on the search results page, load the results
+  if (window.location.pathname.includes("shop-search.php")) {
+    loadSearchResults()
+  }
 
-    // Remove from Quote Functionality (for the quote page)
-    $(document).on("click", ".remove-from-quote", function (e) {
-        e.preventDefault();
-        let button = $(this);
-        let productId = button.attr("data-id");
+  function loadSearchResults() {
+    $("#search-results").html(
+      '<div class="col-12 text-center"><div class="spinner-border text-primary" role="status"></div></div>',
+    )
 
-        if (confirm("Are you sure you want to remove this item?")) {
-            // Remove from localStorage cart
-            cart = cart.filter(item => item.id !== productId);
-            localStorage.setItem("quoteCart", JSON.stringify(cart));
+    $.get(window.location.href, (data) => {
+      const $html = $(data)
+      const $products = $html.find(".product-cart-wrap")
 
-            // Update Cart Count in UI
-            updateCartCount();
-            updateCartDropdown();
+      $("#search-results").empty()
 
-            // Remove the product from the UI
-            button.closest("tr").remove();
-        }
-    });
+      if ($products.length > 0) {
+        $products.each(function () {
+          const $product = $(this)
+          $("#search-results").append($product)
+        })
+      } else {
+        $("#search-results").html(
+          '<div class="col-12"><div class="alert alert-info">No products found matching your search criteria.</div></div>',
+        )
+      }
 
-    // Initialize cart count on page load
-    updateCartCount();
-});
-            </script>
-                    
-                    </body>
-        
-        <!-- Mirrored from funmistores.com/about-us by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 13 Feb 2025 12:51:22 GMT -->
-        </html>
+      $(".count-results").text($products.length)
+      updatePagination()
+
+      // Initialize product modifications
+      initializeProductModifications()
+    }).fail(() => {
+      $("#search-results").html(
+        '<div class="col-12"><div class="alert alert-danger">An error occurred while searching. Please try again.</div></div>',
+      )
+    })
+  }
+
+  function updatePagination() {
+    const pagination = $("#pagination")
+    pagination.empty()
+
+    if (currentPage > 1) {
+      pagination.append(`
+        <li class="page-item">
+          <a class="page-link" href="#" data-page="${currentPage - 1}">Previous</a>
+        </li>
+      `)
+    }
+
+    for (let i = 1; i <= totalPages; i++) {
+      pagination.append(`
+        <li class="page-item ${i === currentPage ? "active" : ""}">
+          <a class="page-link" href="#" data-page="${i}">${i}</a>
+        </li>
+      `)
+    }
+
+    if (currentPage < totalPages) {
+      pagination.append(`
+        <li class="page-item">
+          <a class="page-link" href="#" data-page="${currentPage + 1}">Next</a>
+        </li>
+      `)
+    }
+
+    $(".page-link").on("click", function (e) {
+      e.preventDefault()
+      const page = $(this).data("page")
+      if (page && page >= 1 && page <= totalPages && page !== currentPage) {
+        currentPage = page
+        loadSearchResults()
+      }
+    })
+  }
+
+  function initializeProductModifications() {
+    // Change "Add" text to "Add to Cart"
+    $(".add-cart .add").each(function () {
+      const $addButton = $(this)
+      $addButton.html('<i class="fi-rs-shopping-cart mr-5"></i>Add to Cart')
+    })
+
+    // Hide heart and eye icons and remove their functionality
+    $(".product-action-1").each(function () {
+      $(this).hide()
+    })
+
+    // Remove event listeners for quick view
+    $("[data-bs-toggle='modal']").removeAttr("data-bs-toggle data-bs-target")
+  }
+
+    
+        });
+    </script>
+			</body>
+
+<!-- Mirrored from funmistores.com/ by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 13 Feb 2025 12:30:26 GMT -->
+</html>
