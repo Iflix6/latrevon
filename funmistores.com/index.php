@@ -181,7 +181,7 @@
                                Your Daily <br /> Consumable<br />
                                Online 
                             </h4>
-                            <a href="shop.html" class="btn btn-xs">Shop Now <i class="fi-rs-arrow-small-right"></i></a>
+                            <a href="shop.php" class="btn btn-xs">Shop Now <i class="fi-rs-arrow-small-right"></i></a>
                         </div>
                    
                     </div>
@@ -191,7 +191,7 @@
                     <!--    <img src="assets/imgs/banner/banner-3.jpg" alt="" />-->
                     <!--    <div class="banner-text">-->
                     <!--        <h4>The best Seasoning <br />Products Online</h4>-->
-                    <!--        <a href="shop.html" class="btn btn-xs">Shop Now <i class="fi-rs-arrow-small-right"></i></a>-->
+                    <!--        <a href="shop.php" class="btn btn-xs">Shop Now <i class="fi-rs-arrow-small-right"></i></a>-->
                     <!--    </div>-->
                     <!--</div>-->
                 </div>
@@ -201,7 +201,7 @@
                         <img src="assets/imgs/banner/banner-3.jpg" alt="" />
                         <div class="banner-text">
                             <h4>The best Seasoning <br />Products Online</h4>
-                            <a href="shop.html" class="btn btn-xs">Shop Now <i class="fi-rs-arrow-small-right"></i></a>
+                            <a href="shop.php" class="btn btn-xs">Shop Now <i class="fi-rs-arrow-small-right"></i></a>
                         </div>
                     </div>
                 </div>
